@@ -18,7 +18,7 @@ def init():
     conf = SPARK.sparkContext.getConf()
     print("sparkTmpJobWorkingFolder = ", conf.get("sparkTmpJobWorkingFolder"))
     print("startDate = ", conf.get("startDate"))
-    print(str(conf))
+    print(str(conf.getAll()))
 
 
 # modelop.score
