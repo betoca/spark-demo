@@ -3,6 +3,7 @@ from __future__ import print_function
 import sys
 import os
 from typing import List
+from functools import reduce
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, isnull, when, count, udf
