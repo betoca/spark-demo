@@ -15,8 +15,10 @@ def init():
     SPARK = SparkSession.builder.appName("Echo Test").getOrCreate()
     print("Spark variable:", SPARK, flush=True)
 
-    conf = spark.sparkContext.getConf()
+    conf = SPARK.sparkContext.getConf()
     print("sparkTmpJobWorkingFolder = ", conf.get("sparkTmpJobWorkingFolder"))
+    print("startDate = ", conf.get("startDate"))
+    print(str(conf))
 
 
 # modelop.score
