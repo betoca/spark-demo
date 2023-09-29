@@ -51,7 +51,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
 
     # merged_df = reduce(lambda x, y: x.join(y, how = 'outer'), df_list)
     # merged_df.coalesce(1).write.mode("overwrite").json(output_asset_path)
-    SPARK.read.json(sc.parallelize(df_list)).coalesce(1).write.mode('overwrite').json(output_asset_path)
+    SPARK.read.json(SPARK.sparkContext.parallelize(df_list)).coalesce(1).write.mode('overwrite').json(output_asset_path)
 
     SPARK.stop()
 
