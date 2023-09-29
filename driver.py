@@ -44,7 +44,8 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
 
         df = SPARK.read.format("csv").option("header", "true").load(input_asset_path)
         df = df.filter(df.Year > startYear)
-        df_list.append({basename : df.collect()})
+
+        df_list.append({basename : list(df.toPandas().to_dict('records'))})
 
         # Use coalesce() so that the output CSV is a single file for easy reading
         df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(outputDir) + "/" + str(basename))
