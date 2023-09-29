@@ -1,0 +1,23 @@
+[
+    {
+        "usage": "INPUT_ASSET",
+        "name": ".+\\.csv"
+        "metaData": {
+            "description": "Home Loans"
+        }
+    },
+    {
+        "usage": "INPUT_ASSET",
+        "name": ".+\\.csv"
+        "metaData": {
+            "description": "Car Loans"
+        }
+    },
+    {
+        "usage": "INPUT_ASSET",
+        "name": ".+\\.csv"
+        "metaData": {
+            "description": "IP Pool Rollover"
+        }
+    }
+]
