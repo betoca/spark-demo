@@ -26,7 +26,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
     startYear = SPARK.sparkContext.getConf().get("spark.startDate")
 
     # Iterate through the inputs
-    for idx in range(len(external_inputs))
+    for idx in range(len(external_inputs)):
         # Simply echo the input (with filtered year) if there's a matching output definition
         if len(external_outputs) > idx:
             input_asset = external_inputs[idx]
