@@ -48,7 +48,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(outputDir) + "/" + str(basename))
 
     merged_df = reduce(lambda x, y: x.join(y, how = 'outer'), df_list)
-    merged_df.coalesce(1).write.mode("overwrite").write.json(output_asset_path)
+    merged_df.coalesce(1).write.mode("overwrite").json(output_asset_path)
 
     SPARK.stop()
 
