@@ -42,7 +42,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         df.filter(df.Year > startYear)
 
         # Use coalesce() so that the output CSV is a single file for easy reading
-        df.coalesce(1).write.mode("overwrite").option("header", "true").csv(outputDir + "/" + basename)
+        df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(outputDir) + "/" + str(basename))
 
     SPARK.stop()
 
