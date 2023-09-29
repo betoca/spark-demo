@@ -8,7 +8,7 @@ import pandas as pd
 import json
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, isnull, when, count, udf
+from pyspark.sql.functions import col, isnull, when, count, udf, to_json, spark_partition_id, collect_list, struct
 
 
 # modelop.init
@@ -53,7 +53,13 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
     # merged_df = reduce(lambda x, y: x.join(y, how = 'outer'), df_list)
     # merged_df.coalesce(1).write.mode("overwrite").json(output_asset_path)
     print(df_list)
-    SPARK.read.json(SPARK.sparkContext.parallelize(df_list)).coalesce(1).write.mode('overwrite').json(output_asset_path)
+    df.select(to_json(struct(*df.columns)).alias("json"))\
+    .groupBy(spark_partition_id())\
+    .agg(collect_list("json").alias("json_list"))\
+    .select(col("json_list").cast("string"))\
+    .write.text(output_asset_path)
+
+    # SPARK.read.json(SPARK.sparkContext.parallelize(df_list)).coalesce(1).write.mode('overwrite').json(output_asset_path)
 
     SPARK.stop()
 
