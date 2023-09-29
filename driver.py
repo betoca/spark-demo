@@ -9,16 +9,16 @@ from pyspark.sql.functions import col, isnull, when, count, udf
 
 # modelop.init
 def init():
-    print("Begin function...", flush=True)
+    print("Begin function...")
 
     global SPARK
     SPARK = SparkSession.builder.appName("Echo Test").getOrCreate()
-    print("Spark variable:", SPARK, flush=True)
 
     conf = SPARK.sparkContext.getConf()
     print("sparkTmpJobWorkingFolder = ", conf.get("sparkTmpJobWorkingFolder"))
-    print("startDate = ", conf.get("startDate"))
+    print("spark.startDate = ", conf.get("spark.startDate"))
     print(str(conf.getAll()))
+    print("Sys Arguments" , sys.argv)
 
 
 # modelop.score
