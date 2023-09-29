@@ -1,0 +1,8 @@
+{
+    "tags": ["spark"],
+    "name": "Spark Echo Monitor",
+    "description": "Model to filter output",
+    "modelCategory": "MODEL_MONITORING_MODEL",
+    "defaultAssociationRole": "METRICS_MODEL",
+    "frequentlyUsed": true
+}
