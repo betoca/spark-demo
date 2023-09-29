@@ -25,8 +25,9 @@ def init():
 def score(external_inputs: List, external_outputs: List, external_model_assets: List):
     startYear = SPARK.sparkContext.getConf().get("spark.startDate")
     outputDir = SPARK.sparkContext.getConf().get("spark.outputDir")
-
     output_asset_path = external_outputs[0]["fileUrl"]
+
+    merged_df = SPARK.createDataFrame([])
     # Iterate through the inputs
     for idx in range(len(external_inputs)):
         # Simply echo the input (with filtered year)
@@ -39,10 +40,13 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
             raise ValueError("Input file format is set as JSON but must be CSV")
 
         df = SPARK.read.format("csv").option("header", "true").load(input_asset_path)
-        df.filter(df.Year > startYear)
+        df = df.filter(df.Year > startYear)
+        merged_df = merged_df.join(df, how = 'outer')
 
         # Use coalesce() so that the output CSV is a single file for easy reading
         df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(outputDir) + "/" + str(basename))
+
+    merged_df.coalesce(1).write.mode("overwrite").write.json(output_asset_path)
 
     SPARK.stop()
 
