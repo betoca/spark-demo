@@ -44,7 +44,24 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         df = library.load(SPARK, input_asset_path)
         df = library.transform(SPARK, df)
 
-        df_list.update({basename : list(df.toPandas().to_dict('records'))})
+        df_list.update({basename + " data" : list(df.toPandas().to_dict('records'))})
+
+        if "Max" in df.columns: 
+            bar_chart = {
+                basename + " max chart" : {
+                    "title" : "Example Bar Chart",
+                    "x_axis_label": "X Axis",
+                    "y_axis_label": "Y Axis",
+                    "rotated": false,
+                    "data" : {
+                      "year": list(df.select(df.Year).toPandas().to_dict('records')),
+                      "max": list(df.select(df.Max).toPandas().to_dict('records'))
+                    },
+                    "categories": ["cat1", "cat2", "cat3", "cat4"]
+                }
+            }
+
+            df_list.update(bar_chart)
 
         # Use coalesce() so that the output CSV is a single file for easy reading
         df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(outputDir) + "/" + str(basename))
