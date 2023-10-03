@@ -9,7 +9,7 @@ import json
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, isnull, when, count, udf, to_json, spark_partition_id, collect_list, struct
-
+import library
 
 
 # modelop.init
@@ -27,7 +27,6 @@ def init():
 
 # modelop.score
 def score(external_inputs: List, external_outputs: List, external_model_assets: List):
-    startYear = SPARK.sparkContext.getConf().get("spark.startDate")
     outputDir = SPARK.sparkContext.getConf().get("spark.outputDir")
     output_asset_path = external_outputs[0]["fileUrl"]
 
@@ -40,11 +39,10 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         basename = os.path.basename(input_asset_path)
 
         # Fail if assets are JSON
-        if ("fileFormat" in input_asset) and (input_asset["fileFormat"] == "JSON"):
-            raise ValueError("Input file format is set as JSON but must be CSV")
+        library.validate_input_format(input_asset)
 
-        df = SPARK.read.format("csv").option("header", "true").load(input_asset_path)
-        df = df.filter(df.Year > startYear)
+        df = library.load(SPARK, input_asset_path)
+        library.transform(SPARK, df)
 
         df_list.update({basename : list(df.toPandas().to_dict('records'))})
 
