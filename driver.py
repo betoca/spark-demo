@@ -46,13 +46,13 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
 
         df_list.update({basename + " data" : list(df.toPandas().to_dict('records'))})
 
-        if "Max" in df.columns: 
+        if "Max" in df.columns:
             bar_chart = {
                 basename + " max chart" : {
                     "title" : "Example Bar Chart",
                     "x_axis_label": "X Axis",
                     "y_axis_label": "Y Axis",
-                    "rotated": false,
+                    "rotated": False,
                     "data" : {
                       "year": list(df.select(df.Year).toPandas().to_dict('records')),
                       "max": list(df.select(df.Max).toPandas().to_dict('records'))
