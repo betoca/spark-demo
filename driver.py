@@ -42,7 +42,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         library.validate_input_format(input_asset)
 
         df = library.load(SPARK, input_asset_path)
-        library.transform(SPARK, df)
+        df = library.transform(SPARK, df)
 
         df_list.update({basename : list(df.toPandas().to_dict('records'))})
 
