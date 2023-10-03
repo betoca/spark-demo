@@ -31,7 +31,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
     outputDir = SPARK.sparkContext.getConf().get("spark.outputDir")
     output_asset_path = external_outputs[0]["fileUrl"]
 
-    df_list = []
+    df_list = {}
     # Iterate through the inputs
     for idx in range(len(external_inputs)):
         # Simply echo the input (with filtered year)
@@ -46,7 +46,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         df = SPARK.read.format("csv").option("header", "true").load(input_asset_path)
         df = df.filter(df.Year > startYear)
 
-        df_list.append({basename : list(df.toPandas().to_dict('records'))})
+        df_list.update({basename : list(df.toPandas().to_dict('records'))})
 
         # Use coalesce() so that the output CSV is a single file for easy reading
         df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(outputDir) + "/" + str(basename))
