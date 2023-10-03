@@ -9,8 +9,7 @@ def validate_input_format(input_asset):
 
 def transform(spark, dataframe):
     startYear = spark.sparkContext.getConf().get("spark.startDate")
-    df = df.filter(df.Year > startYear)
-    return df
+    return dataframe.filter(dataframe.Year > startYear)
 
 
 def load(spark, input_asset_path):
