@@ -47,7 +47,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         df = library.transform(SPARK, df)
 
         df_list.update({basename : list(df.toPandas().to_dict('records'))})
-        schema_field_list.append(mtr_format.generic_table_schema_field(basename)
+        schema_field_list.append(mtr_format.generic_table_schema_field(basename))
 
         if "Max" in df.columns:
             bar_chart = {
