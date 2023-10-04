@@ -60,7 +60,7 @@ def df_from_rdd(rdd, prototype, sql):
     return sql.createDataFrame(row_rdd, schema)
 
 
-def bar_graph_schema_field(bar_chart_col_names = None, bar_chart_title = None, categories_type = IntegerType()):
+def bar_graph_schema_field(bar_chart_col_names = None, bar_chart_title = None, bar_chart_data = [] , categories_type = IntegerType()):
     partial_schema = StructField(
         bar_chart_title,
         StructType([
