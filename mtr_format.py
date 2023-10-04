@@ -69,8 +69,8 @@ def bar_graph_schema_field(bar_chart_col_names = None, bar_chart_title = None, b
             StructField("y_axis_label", StringType(), False),
             StructField("rotated", StringType(), True),
             StructField("data", StructType([
-                StructField("max", ArrayType(IntegerType())),
-                StructField("min", ArrayType(IntegerType()))
+                StructField("max", ArrayType(StringType())),
+                StructField("min", ArrayType(StringType()))
             ]), False),
             StructField("categories", ArrayType(categories_type), False),
         ]),
