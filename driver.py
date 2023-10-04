@@ -55,7 +55,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                     "rotated": False,
                     "data" : {
                       "max": list(df.select(df.Max).toPandas().to_dict('list')["Max"]),
-                      "min": list(df.select(df.Year).toPandas().to_dict('list')["Min"]),
+                      "min": list(df.select(df.Min).toPandas().to_dict('list')["Min"]),
                     },
                     "categories": list(df.select(df.Year).toPandas().to_dict('list')["Year"])
                 }
