@@ -78,7 +78,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
     # generic.write.mode('overwrite').json(output_asset_path)
 
     row = Row(**df_list)
-    df = spark.createDataFrame([row], mtr_format.include())
+    df = SPARK.createDataFrame([row], mtr_format.include())
     df.createDataFrame([row]).coalesce(1).write.mode('overwrite').json(output_asset_path)
 
     # SPARK.createDataFrame([df_list]).coalesce(1).write.mode('overwrite').json(output_asset_path)
