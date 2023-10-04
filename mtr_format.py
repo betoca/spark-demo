@@ -61,23 +61,21 @@ def df_from_rdd(rdd, prototype, sql):
 
 
 def bar_graph_schema_field(bar_chart_col_names = None, bar_chart_title = None, categories_type = IntegerType()):
-    partial_schema =
-        StructField(
-            bar_chart_title,
-            StructType([
-                StructField("title", StringType(), False),
-                StructField("x_axis_label", StringType(), False),
-                StructField("y_axis_label", StringType(), False),
-                StructField("rotated", StringType(), True),
-                StructField("data", StructType(
-                [
-                    StructField("max", ArrayType(IntegerType())),
-                    StructField("min", ArrayType(IntegerType()))
-                ]), False),
-                StructField("categories", ArrayType(categories_type), False),
-            ]),
+    partial_schema = StructField(
+        bar_chart_title,
+        StructType([
+            StructField("title", StringType(), False),
+            StructField("x_axis_label", StringType(), False),
+            StructField("y_axis_label", StringType(), False),
+            StructField("rotated", StringType(), True),
+            StructField("data", StructType([
+                StructField("max", ArrayType(IntegerType())),
+                StructField("min", ArrayType(IntegerType()))
+            ]), False),
+            StructField("categories", ArrayType(categories_type), False),
+        ]),
             True
-        )
+    )
     return partial_schema
 
 
