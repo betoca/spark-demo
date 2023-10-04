@@ -8,6 +8,7 @@ import pandas as pd
 import json
 
 from pyspark.sql import SparkSession, Row
+from pyspark.sql.types import *
 from pyspark.sql.functions import col, isnull, when, count, udf, to_json, spark_partition_id, collect_list, struct
 import library
 import mtr_format
