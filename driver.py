@@ -68,7 +68,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
             df_list.update(bar_chart)
             schema_field_list.append(
                 mtr_format.bar_graph_schema_field(
-                    bar_chart_title = "HomeLoans.csv_bar_graph",
+                    bar_chart_title = basename + "_bar_graph",
                     bar_chart_data = ['max', 'min'],
                     categories_type = StringType()
                )
