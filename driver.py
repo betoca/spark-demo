@@ -7,7 +7,7 @@ from functools import reduce
 import pandas as pd
 import json
 
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, isnull, when, count, udf, to_json, spark_partition_id, collect_list, struct
 import library
 
@@ -48,16 +48,16 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
 
         if "Max" in df.columns:
             bar_chart = {
-                basename + " max chart" : {
+                basename + "_bar_graph" : {
                     "title" : "Example Bar Chart",
                     "x_axis_label": "X Axis",
                     "y_axis_label": "Y Axis",
                     "rotated": False,
                     "data" : {
-                      "year": list(df.select(df.Year).toPandas().to_dict('list')["Year"]),
-                      "max": list(df.select(df.Max).toPandas().to_dict('list')["Max"])
+                      "max": list(df.select(df.Max).toPandas().to_dict('list')["Max"]),
+                      "min": list(df.select(df.Year).toPandas().to_dict('list')["Min"]),
                     },
-                    "categories": ["cat1", "cat2", "cat3", "cat4"]
+                    "categories": list(df.select(df.Year).toPandas().to_dict('list')["Year"])
                 }
             }
 
@@ -71,13 +71,17 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
     # merged_df = reduce(lambda x, y: x.join(y, how = 'outer'), df_list)
     # merged_df.coalesce(1).write.mode("overwrite").json(output_asset_path)
 
-    # print(df_list)
+    print(df_list)
     # generic = SPARK.read.json(SPARK.sparkContext.parallelize([df_list])).coalesce(1)
     # print("Merged schema:")
     # generic.printSchema()
     # generic.write.mode('overwrite').json(output_asset_path)
 
-    SPARK.createDataFrame([df_list]).coalesce(1).write.mode('overwrite').json(output_asset_path)
+    row = Row(**df_list)
+    df = spark.createDataFrame([row], mtr_format.include())
+    df.createDataFrame([row]).coalesce(1).write.mode('overwrite').json(output_asset_path)
+
+    # SPARK.createDataFrame([df_list]).coalesce(1).write.mode('overwrite').json(output_asset_path)
 
     # rdd_of_rows = rdd.map(lambda x: Row(**x))
     # df = sql.createDataFrame(rdd_of_rows)
