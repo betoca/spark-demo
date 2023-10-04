@@ -92,7 +92,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
     schema = StructType(schema_field_list)
     row = Row(**df_list)
     df = SPARK.createDataFrame([row], schema)
-    df.createDataFrame([row]).coalesce(1).write.mode('overwrite').json(output_asset_path)
+    df.coalesce(1).write.mode('overwrite').json(output_asset_path)
 
     # SPARK.createDataFrame([df_list]).coalesce(1).write.mode('overwrite').json(output_asset_path)
 
