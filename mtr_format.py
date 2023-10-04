@@ -1,10 +1,10 @@
-import pyspark.sql.types as pst
 from pyspark.sql import Row
+from pyspark.sql.types import *
 
 def infer_schema(rec):
     """infers dataframe schema for a record. Assumes every dict is a Struct, not a Map"""
     if isinstance(rec, dict):
-        return pst.StructType([pst.StructField(key, infer_schema(value), True)
+        return StructType([StructField(key, infer_schema(value), True)
                               for key, value in sorted(rec.items())])
     elif isinstance(rec, list):
         if len(rec) == 0:
@@ -14,9 +14,9 @@ def infer_schema(rec):
             this_type = infer_schema(elem)
             if elem_type != this_type:
                 raise ValueError("can't infer type of a list with inconsistent elem types")
-        return pst.ArrayType(elem_type)
+        return ArrayType(elem_type)
     else:
-        return pst._infer_type(rec)
+        return _infer_type(rec)
 
 
 def _rowify(x, prototype):
@@ -58,3 +58,29 @@ def df_from_rdd(rdd, prototype, sql):
     schema = infer_schema(prototype)
     row_rdd = rdd.map(lambda x: _rowify(x, prototype))
     return sql.createDataFrame(row_rdd, schema)
+
+
+def bar_graph_schema_field(bar_chart_col_names = None, bar_chart_title = None, categories_type = IntegerType()):
+    partial_schema =
+        StructField(
+            bar_chart_title,
+            StructType([
+                StructField("title", StringType(), False),
+                StructField("x_axis_label", StringType(), False),
+                StructField("y_axis_label", StringType(), False),
+                StructField("rotated", StringType(), True),
+                StructField("data", StructType(
+                [
+                    StructField("max", ArrayType(IntegerType())),
+                    StructField("min", ArrayType(IntegerType()))
+                ]), False),
+                StructField("categories", ArrayType(categories_type), False),
+            ]),
+            True
+        )
+    return partial_schema
+
+
+def generic_table_schema_field(title = "generic_table"):
+    partial_schema = StructField(title,ArrayType(MapType(StringType(),StringType())))
+    return partial_schema

@@ -10,6 +10,7 @@ import json
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.functions import col, isnull, when, count, udf, to_json, spark_partition_id, collect_list, struct
 import library
+import mtr_format
 
 
 # modelop.init
@@ -31,6 +32,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
     output_asset_path = external_outputs[0]["fileUrl"]
 
     df_list = {}
+    schema_field_list = []
     # Iterate through the inputs
     for idx in range(len(external_inputs)):
         # Simply echo the input (with filtered year)
@@ -44,7 +46,8 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         df = library.load(SPARK, input_asset_path)
         df = library.transform(SPARK, df)
 
-        df_list.update({basename + " data" : list(df.toPandas().to_dict('records'))})
+        df_list.update({basename : list(df.toPandas().to_dict('records'))})
+        schema_field_list.append(mtr_format.generic_table_schema_field(basename)
 
         if "Max" in df.columns:
             bar_chart = {
@@ -62,6 +65,13 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
             }
 
             df_list.update(bar_chart)
+            schema_field_list.append(
+                mtr_format.bar_graph_schema_field(
+                    bar_chart_title = "HomeLoans.csv_bar_graph",
+                   bar_chart_data = ['max', 'min']
+               )
+            )
+
         print(basename + " schema:")
         df.printSchema()
 
@@ -77,8 +87,9 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
     # generic.printSchema()
     # generic.write.mode('overwrite').json(output_asset_path)
 
+    schema = StructType(schema_field_list)
     row = Row(**df_list)
-    df = SPARK.createDataFrame([row], mtr_format.include())
+    df = SPARK.createDataFrame([row], schema)
     df.createDataFrame([row]).coalesce(1).write.mode('overwrite').json(output_asset_path)
 
     # SPARK.createDataFrame([df_list]).coalesce(1).write.mode('overwrite').json(output_asset_path)
