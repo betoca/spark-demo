@@ -14,10 +14,8 @@ SPARK: SparkSession
 
 # modelop.init
 def init():
-    print("Begin function...")
-
     global SPARK
-    SPARK = SparkSession.builder.appName("Echo Test").getOrCreate()
+    SPARK = SparkSession.builder.appName("Monitor Test").getOrCreate()
     conf = SPARK.sparkContext.getConf()
 
     print("spark.startDate = ", conf.get("spark.startDate"))
@@ -45,7 +43,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         df = lib.load(SPARK, input_asset_path)
         df = lib.transform(SPARK, df)
 
-        mtr_output.update(mtr.as_tabular_data(df))
+        mtr_output.update(mtr.as_tabular_data(df), key=basename)
         schema_field_list.append(mtr.generic_table_schema_field(basename))
 
         if "Max" in df.columns:
