@@ -25,9 +25,6 @@ def init():
 
 # modelop.score
 def score(external_inputs: List, external_outputs: List, external_model_assets: List):
-    output_dir = SPARK.sparkContext.getConf().get("spark.outputDir")
-    output_asset_path = external_outputs[0]["fileUrl"]
-
     mtr_output = {}
     schema_field_list = []
     # Iterate through the inputs
@@ -46,20 +43,25 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         mtr_output.update(mtr.as_tabular_data(df, key=basename))
         schema_field_list.append(mtr.generic_table_schema_field(basename))
 
+        # Create Horizontal Bar chart
         if "Max" in df.columns:
             mtr_output.update(mtr.as_bar_chart_data({
                       "max": list(df.select("Max").toPandas().to_dict('list')["Max"]),
                       "min": list(df.select("Min").toPandas().to_dict('list')["Min"]),
                     }, categories=list(df.select(df.Year).toPandas().to_dict('list')["Year"]),
                 key=basename + "_bar_graph", title=basename, x_axis_label="Year", y_axis_label="Values", rotated=True))
+            # Schema for Horizontal Bar chart
             schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_key=basename + "_bar_graph", bar_chart_col_names=['max', 'min']))
 
+        # Create Vertical Bar chart
         if "Count" in df.columns:
             mtr_output.update(mtr.as_bar_chart_data({
                       "count": list(df.select("Count").toPandas().to_dict('list')["Count"]),
                     }, categories=list(df.select("Year").toPandas().to_dict('list')["Year"]),
                 key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values", rotated=False))
+            # Schema for Vertical Bar Chart
             schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_key=basename + "_count_x_year", bar_chart_col_names=['count']))
+        # Create Line Chart
         else:  # IP Rollover
             mtr_output.update(mtr.as_line_chart_data({
                 "Rollover Current Year <=5%": list(
@@ -73,6 +75,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                 "Rollover Current Year >25%": list(
                     df.select("Year", "Rollover Current Year >25%").toPandas().to_dict('split')['data']),
             }, key=basename + "_line", title=basename, x_axis_label="Year", y_axis_label="Values"))
+            # Schema for Line chart
             schema_field_list.append(mtr.line_graph_schema_field(line_chart_key=basename + "_line",
                                                                  line_chart_col_names=['Rollover Current Year <=5%',
                                                                                        'Rollover Current Year <=10%',
@@ -80,6 +83,8 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                                                                                        'Rollover Current Year <=25%',
                                                                                        'Rollover Current Year >25%']))
 
+            # Below is more complex example to show transposition of data values as series of the chart
+            # in a Vertical Bar chart with multiple series
             ip = df.select("Rollover Current Year <=5%", "Rollover Current Year <=10%", "Rollover Current Year <=15%",
                            "Rollover Current Year <=25%", "Rollover Current Year >25%", "Year")
             # Get the list of years (from the rows/values)
@@ -96,14 +101,18 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                 mtr.bar_graph_schema_field(bar_chart_key=basename + "_vertical_bar",
                                            bar_chart_col_names=years_list))
 
-        # Use coalesce() so that the output CSV is a single file for easy reading
+        # Write intermediate dataframes (Cars, Home Loans and IP Rollover as CSV to a parameterized location)
+        output_dir = SPARK.sparkContext.getConf().get("spark.outputDir")
         df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(output_dir) + "/" + str(basename))
 
-    print(mtr_output)
-
+    # Load the formatted MTR structure into a dataframe for writing to HDFS
     schema = StructType(schema_field_list)
     row = Row(**mtr_output)
     consolidated_df = SPARK.createDataFrame([row], schema)
+
+    # Write the final output to the path gotten from the output asset definition.
+    output_asset_path = external_outputs[0]["fileUrl"]
+    # Use coalesce() so that the output JSON is a single file for easy reading
     consolidated_df.coalesce(1).write.mode('overwrite').json(output_asset_path)
 
     SPARK.stop()
