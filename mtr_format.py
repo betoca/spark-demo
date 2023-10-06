@@ -1,9 +1,9 @@
 from pyspark.sql.types import *
 
 
-def line_graph_schema_field(line_chart_title=None, line_chart_col_names=None):
+def line_graph_schema_field(line_chart_key=None, line_chart_col_names=None):
     partial_schema = StructField(
-        line_chart_title,
+        line_chart_key,
         StructType([
             StructField("title", StringType(), False),
             StructField("x_axis_label", StringType(), False),
@@ -16,9 +16,9 @@ def line_graph_schema_field(line_chart_title=None, line_chart_col_names=None):
     return partial_schema
 
 
-def bar_graph_schema_field(bar_chart_title=None, bar_chart_col_names=None, categories_type=StringType()):
+def bar_graph_schema_field(bar_chart_key=None, bar_chart_col_names=None, categories_type=StringType()):
     partial_schema = StructField(
-        bar_chart_title,
+        bar_chart_key,
         StructType([
             StructField("title", StringType(), False),
             StructField("x_axis_label", StringType(), False),

@@ -25,7 +25,7 @@ def init():
 
 # modelop.score
 def score(external_inputs: List, external_outputs: List, external_model_assets: List):
-    outputDir = SPARK.sparkContext.getConf().get("spark.outputDir")
+    output_dir = SPARK.sparkContext.getConf().get("spark.outputDir")
     output_asset_path = external_outputs[0]["fileUrl"]
 
     mtr_output = {}
@@ -52,14 +52,14 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                       "min": list(df.select("Min").toPandas().to_dict('list')["Min"]),
                     }, categories=list(df.select(df.Year).toPandas().to_dict('list')["Year"]),
                 key=basename + "_bar_graph", title=basename, x_axis_label="Year", y_axis_label="Values", rotated=True))
-            schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_title=basename + "_bar_graph", bar_chart_col_names=['max', 'min']))
+            schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_key=basename + "_bar_graph", bar_chart_col_names=['max', 'min']))
 
         if "Count" in df.columns:
             mtr_output.update(mtr.as_bar_chart_data({
                       "count": list(df.select("Count").toPandas().to_dict('list')["Count"]),
                     }, categories=list(df.select("Year").toPandas().to_dict('list')["Year"]),
                 key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values", rotated=False))
-            schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_title=basename + "_count_x_year", bar_chart_col_names=['count']))
+            schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_key=basename + "_count_x_year", bar_chart_col_names=['count']))
         else:  # IP Rollover
             mtr_output.update(mtr.as_line_chart_data({
                 "Rollover Current Year <=5%": list(
@@ -73,38 +73,36 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                 "Rollover Current Year >25%": list(
                     df.select("Year", "Rollover Current Year >25%").toPandas().to_dict('split')['data']),
             }, key=basename + "_line", title=basename, x_axis_label="Year", y_axis_label="Values"))
-            schema_field_list.append(mtr.line_graph_schema_field(line_chart_title=basename + "_line",
+            schema_field_list.append(mtr.line_graph_schema_field(line_chart_key=basename + "_line",
                                                                  line_chart_col_names=['Rollover Current Year <=5%',
                                                                                        'Rollover Current Year <=10%',
                                                                                        'Rollover Current Year <=15%',
                                                                                        'Rollover Current Year <=25%',
                                                                                        'Rollover Current Year >25%']))
 
-            ip = df.select("Rollover Current Year <=5%","Rollover Current Year <=10%","Rollover Current Year <=15%",
-                           "Rollover Current Year <=25%", "Rollover Current Year >25%", "Year")
-            mtr_output.update(mtr.as_bar_chart_data({
-                "2017": list(ip.drop("Year").filter("Year = 2017").toPandas().to_dict('split')['data'][0]),
-                "2018": list(ip.drop("Year").filter("Year = 2018").toPandas().to_dict('split')['data'][0]),
-                "2019": list(ip.drop("Year").filter("Year = 2019").toPandas().to_dict('split')['data'][0]),
-                "2020": list(ip.drop("Year").filter("Year = 2020").toPandas().to_dict('split')['data'][0]),
-                "2021": list(ip.drop("Year").filter("Year = 2021").toPandas().to_dict('split')['data'][0]),
-                "2022": list(ip.drop("Year").filter("Year = 2022").toPandas().to_dict('split')['data'][0]),
-            }, categories=list(ip.drop("Year").columns),
-                key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values",
-                rotated=False))
+            ip = df.select("Rollover Current Year <=5%", "Rollover Current Year <=10%", "Rollover Current Year <=15%",
+                           "Rollover Current Year <=25%", "Rollover Current Year >25%", "Year").orderBy("Year")
+            data = {}
+            years_list = list(ip.select("Year").toPandas().to_dict('list')["Year"])
+            map(lambda year: data.update(
+                {year: list(ip.drop("Year").filter("Year = " + year).toPandas().to_dict('split')['data'][0])}),
+                years_list)
+            mtr_output.update(mtr.as_bar_chart_data(data, categories=list(ip.drop("Year").columns),
+                                                    key=basename + "_vertical_bar", title=basename,
+                                                    x_axis_label="Values", y_axis_label="Year", rotated=False))
             schema_field_list.append(
-                mtr.bar_graph_schema_field(bar_chart_title=basename + "_count_x_year",
-                                           bar_chart_col_names=list(ip.select("Year").orderBy("Year").toPandas().to_dict('list')["Year"])))
+                mtr.bar_graph_schema_field(bar_chart_key=basename + "_vertical_bar",
+                                           bar_chart_col_names=years_list))
 
         # Use coalesce() so that the output CSV is a single file for easy reading
-        df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(outputDir) + "/" + str(basename))
+        df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(output_dir) + "/" + str(basename))
 
     print(mtr_output)
 
     schema = StructType(schema_field_list)
     row = Row(**mtr_output)
-    df = SPARK.createDataFrame([row], schema)
-    df.coalesce(1).write.mode('overwrite').json(output_asset_path)
+    consolidated_df = SPARK.createDataFrame([row], schema)
+    consolidated_df.coalesce(1).write.mode('overwrite').json(output_asset_path)
 
     SPARK.stop()
 
