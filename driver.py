@@ -52,7 +52,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                       "min": list(df.select(df.Min).toPandas().to_dict('list')["Min"]),
                     }, categories=list(df.select(df.Year).toPandas().to_dict('list')["Year"]),
                 key=basename + "_bar_graph", title=basename, x_axis_label="Year", y_axis_label="Values", rotated=True))
-            schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_title=basename + "_bar_graph", bar_chart_col_names=['max', 'min'], categories_type=IntegerType()))
+            schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_title=basename + "_bar_graph", bar_chart_col_names=['max', 'min']))
 
         print(basename + " schema:")
         df.printSchema()
