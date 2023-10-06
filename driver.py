@@ -60,6 +60,13 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                     }, categories=list(df.select("Year").toPandas().to_dict('list')["Year"]),
                 key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values", rotated=False))
             schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_title=basename + "_count_x_year", bar_chart_col_names=['count']))
+        else:
+            mtr_output.update(mtr.as_line_chart_data({
+                "data1": [[1, 100], [3, 200], [5, 300]],
+                "data2": [[2, 350], [4, 250], [6, 150]]
+            }, key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values"))
+            schema_field_list.append(mtr.line_graph_schema_field(line_chart_title=basename + "_count_x_year",
+                                                                 line_chart_col_names=['count']))
 
         print(basename + " schema:")
         df.printSchema()

@@ -1,6 +1,21 @@
 from pyspark.sql.types import *
 
 
+def line_graph_schema_field(line_chart_title=None, line_chart_col_names=None):
+    partial_schema = StructField(
+        line_chart_title,
+        StructType([
+            StructField("title", StringType(), False),
+            StructField("x_axis_label", StringType(), False),
+            StructField("y_axis_label", StringType(), False),
+            StructField("data", StructType(
+                list(map(lambda col: StructField(col, ArrayType(ArrayType(StringType()))), line_chart_col_names))
+            ), False)
+        ]), True
+    )
+    return partial_schema
+
+
 def bar_graph_schema_field(bar_chart_title=None, bar_chart_col_names=None, categories_type=StringType()):
     partial_schema = StructField(
         bar_chart_title,
@@ -58,3 +73,26 @@ def as_bar_chart_data(data, categories, key, title="", x_axis_label="", y_axis_l
                     "categories": categories
                 }
             }
+
+
+def as_line_chart_data(data, key, title="", x_axis_label="", y_axis_label=""):
+    """
+    Returns a dictionary with the structure necessary for a bar chart
+    :param data: a dictionary in the format: {"series1": ["a","b","c"], "series2": ["x","y","z"]}
+    :param categories: a list of values matching the series in the data
+    :param key: of the returning dictionary entry
+    :param title: of the bar chart
+    :param x_axis_label: text to describe the values in the categories
+    :param y_axis_label: text to describe the values in the data
+    :param rotated: true for horizontal, false for vertical (default)
+    :return: The dictionary structure with bar chart data
+    """
+    return {
+                key: {
+                    "title": title,
+                    "x_axis_label": x_axis_label,
+                    "y_axis_label": y_axis_label,
+                    "data": data
+                }
+            }
+
