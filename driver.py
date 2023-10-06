@@ -66,7 +66,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                 "data2": [[2, 350], [4, 250], [6, 150]]
             }, key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values"))
             schema_field_list.append(mtr.line_graph_schema_field(line_chart_title=basename + "_count_x_year",
-                                                                 line_chart_col_names=['count']))
+                                                                 line_chart_col_names=['data1', 'data2']))
 
         print(basename + " schema:")
         df.printSchema()
