@@ -43,7 +43,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         df = lib.load(SPARK, input_asset_path)
         df = lib.transform(SPARK, df)
 
-        mtr_output.update(mtr.as_tabular_data(df), key=basename)
+        mtr_output.update(mtr.as_tabular_data(df, key=basename))
         schema_field_list.append(mtr.generic_table_schema_field(basename))
 
         if "Max" in df.columns:
