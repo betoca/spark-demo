@@ -62,11 +62,23 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
             schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_title=basename + "_count_x_year", bar_chart_col_names=['count']))
         else:
             mtr_output.update(mtr.as_line_chart_data({
-                "data1": [[1, 100], [3, 200], [5, 300]],
-                "data2": [[2, 350], [4, 250], [6, 150]]
-            }, key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values"))
-            schema_field_list.append(mtr.line_graph_schema_field(line_chart_title=basename + "_count_x_year",
-                                                                 line_chart_col_names=['data1', 'data2']))
+                "Rollover Current Year <=5%": list(
+                    df.select("Year", "Rollover Current Year <=5%").toPandas().to_dict('split')['data']),
+                "Rollover Current Year <=10%": list(
+                    df.select("Year", "Rollover Current Year <=10%").toPandas().to_dict('split')['data']),
+                "Rollover Current Year <=15%": list(
+                    df.select("Year", "Rollover Current Year <=15%").toPandas().to_dict('split')['data']),
+                "Rollover Current Year <=25%": list(
+                    df.select("Year", "Rollover Current Year <=25%").toPandas().to_dict('split')['data']),
+                "Rollover Current Year >25%": list(
+                    df.select("Year", "Rollover Current Year >25%").toPandas().to_dict('split')['data']),
+            }, key=basename + "_line", title=basename, x_axis_label="Year", y_axis_label="Values"))
+            schema_field_list.append(mtr.line_graph_schema_field(line_chart_title=basename + "_line",
+                                                                 line_chart_col_names=['Rollover Current Year <=5%',
+                                                                                       'Rollover Current Year <=10%',
+                                                                                       'Rollover Current Year <=15%',
+                                                                                       'Rollover Current Year <=25%',
+                                                                                       'Rollover Current Year >25%']))
 
         print(basename + " schema:")
         df.printSchema()
