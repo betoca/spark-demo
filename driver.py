@@ -86,12 +86,12 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
             years_list = list(ip.select("Year").toPandas().to_dict('list')["Year"])
             # For each Row where year = each item of the years list, get the rollover values per category
             tmp_list_data = list(map(lambda year: {year: list(ip.filter("Year = " + year).drop("Year").toPandas().to_dict('split')['data'][0])}, years_list))
-            # Merge every item from the temp list
+            # Merge every item from the temp list into a dictionary
             data = {k: v for d in tmp_list_data for k, v in d.items()}
 
             mtr_output.update(mtr.as_bar_chart_data(data, categories=list(ip.drop("Year").columns),
                                                     key=basename + "_vertical_bar", title=basename,
-                                                    x_axis_label="Values", y_axis_label="Year", rotated=False))
+                                                    x_axis_label="Year", y_axis_label="Values", rotated=False))
             schema_field_list.append(
                 mtr.bar_graph_schema_field(bar_chart_key=basename + "_vertical_bar",
                                            bar_chart_col_names=years_list))
