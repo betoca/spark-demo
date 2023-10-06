@@ -60,7 +60,7 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                     }, categories=list(df.select("Year").toPandas().to_dict('list')["Year"]),
                 key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values", rotated=False))
             schema_field_list.append(mtr.bar_graph_schema_field(bar_chart_title=basename + "_count_x_year", bar_chart_col_names=['count']))
-        else:
+        else:  # IP Rollover
             mtr_output.update(mtr.as_line_chart_data({
                 "Rollover Current Year <=5%": list(
                     df.select("Year", "Rollover Current Year <=5%").toPandas().to_dict('split')['data']),
@@ -80,8 +80,21 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
                                                                                        'Rollover Current Year <=25%',
                                                                                        'Rollover Current Year >25%']))
 
-        print(basename + " schema:")
-        df.printSchema()
+            ip = df.select("Rollover Current Year <=5%","Rollover Current Year <=10%","Rollover Current Year <=15%",
+                           "Rollover Current Year <=25%", "Rollover Current Year >25%", "Year")
+            mtr_output.update(mtr.as_bar_chart_data({
+                "2017": list(ip.drop("Year").filter("Year = 2017").toPandas().to_dict('split')['data'][0]),
+                "2018": list(ip.drop("Year").filter("Year = 2018").toPandas().to_dict('split')['data'][0]),
+                "2019": list(ip.drop("Year").filter("Year = 2019").toPandas().to_dict('split')['data'][0]),
+                "2020": list(ip.drop("Year").filter("Year = 2020").toPandas().to_dict('split')['data'][0]),
+                "2021": list(ip.drop("Year").filter("Year = 2021").toPandas().to_dict('split')['data'][0]),
+                "2022": list(ip.drop("Year").filter("Year = 2022").toPandas().to_dict('split')['data'][0]),
+            }, categories=list(ip.drop("Year").columns),
+                key=basename + "_count_x_year", title=basename, x_axis_label="Year", y_axis_label="Values",
+                rotated=False))
+            schema_field_list.append(
+                mtr.bar_graph_schema_field(bar_chart_title=basename + "_count_x_year",
+                                           bar_chart_col_names=list(ip.select("Year").orderBy("Year").toPandas().to_dict('list')["Year"])))
 
         # Use coalesce() so that the output CSV is a single file for easy reading
         df.coalesce(1).write.mode("overwrite").option("header", "true").csv(str(outputDir) + "/" + str(basename))

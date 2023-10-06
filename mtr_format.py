@@ -77,14 +77,12 @@ def as_bar_chart_data(data, categories, key, title="", x_axis_label="", y_axis_l
 
 def as_line_chart_data(data, key, title="", x_axis_label="", y_axis_label=""):
     """
-    Returns a dictionary with the structure necessary for a bar chart
-    :param data: a dictionary in the format: {"series1": ["a","b","c"], "series2": ["x","y","z"]}
-    :param categories: a list of values matching the series in the data
+    Returns a dictionary with the structure necessary for a line chart
+    :param data: a dictionary in the format: {"series1": [[x1,y1], [x2,y2]] "series2": [[x1,y3], [x2,y3]]}
     :param key: of the returning dictionary entry
     :param title: of the bar chart
     :param x_axis_label: text to describe the values in the categories
     :param y_axis_label: text to describe the values in the data
-    :param rotated: true for horizontal, false for vertical (default)
     :return: The dictionary structure with bar chart data
     """
     return {
