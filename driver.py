@@ -82,11 +82,14 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
 
             ip = df.select("Rollover Current Year <=5%", "Rollover Current Year <=10%", "Rollover Current Year <=15%",
                            "Rollover Current Year <=25%", "Rollover Current Year >25%", "Year").orderBy("Year")
-            data = {}
+
             years_list = list(ip.select("Year").toPandas().to_dict('list')["Year"])
-            map(lambda year: data.update(
-                {year: list(ip.drop("Year").filter("Year = " + year).toPandas().to_dict('split')['data'][0])}),
-                years_list)
+            tmp_list_data = list(map(lambda year: {year: list(ip.filter("Year = " + year).drop("Year").toPandas().to_dict('split')['data'][0])}, years_list))
+
+            data = {}
+            for d in tmp_list_data:
+                data.update(d)
+
             mtr_output.update(mtr.as_bar_chart_data(data, categories=list(ip.drop("Year").columns),
                                                     key=basename + "_vertical_bar", title=basename,
                                                     x_axis_label="Values", y_axis_label="Year", rotated=False))
