@@ -63,16 +63,16 @@ def score(external_inputs: List, external_outputs: List, external_model_assets: 
         else:
             mtr_output.update(mtr.as_line_chart_data({
                 "Rollover Current Year <=5%": list(
-                    df.select("Rollover Current Year <=5%", "Year").toPandas().to_dict('split')['data']),
+                    df.select("Year", "Rollover Current Year <=5%").toPandas().to_dict('split')['data']),
                 "Rollover Current Year <=10%": list(
-                    df.select("Rollover Current Year <=10%", "Year").toPandas().to_dict('split')['data']),
+                    df.select("Year", "Rollover Current Year <=10%").toPandas().to_dict('split')['data']),
                 "Rollover Current Year <=15%": list(
-                    df.select("Rollover Current Year <=15%", "Year").toPandas().to_dict('split')['data']),
+                    df.select("Year", "Rollover Current Year <=15%").toPandas().to_dict('split')['data']),
                 "Rollover Current Year <=25%": list(
-                    df.select("Rollover Current Year <=25%", "Year").toPandas().to_dict('split')['data']),
+                    df.select("Year", "Rollover Current Year <=25%").toPandas().to_dict('split')['data']),
                 "Rollover Current Year >25%": list(
-                    df.select("Rollover Current Year >25%", "Year").toPandas().to_dict('split')['data']),
-            }, key=basename + "_line", title=basename, x_axis_label="Values", y_axis_label="Year"))
+                    df.select("Year", "Rollover Current Year >25%").toPandas().to_dict('split')['data']),
+            }, key=basename + "_line", title=basename, x_axis_label="Year", y_axis_label="Values"))
             schema_field_list.append(mtr.line_graph_schema_field(line_chart_title=basename + "_line",
                                                                  line_chart_col_names=['Rollover Current Year <=5%',
                                                                                        'Rollover Current Year <=10%',
